@@ -12,24 +12,26 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Objects.nonNull;
 
 @AllArgsConstructor
 @NoArgsConstructor
 public class FilterSpecificationGenerator<T> {
-    Map<String, Class<?>> fieldTypeMap;
+    private static final String INTEGER = "Integer";
+    private static final String LONG = "Long";
+    private static final String DOUBLE = "Double";
+    private static final String LOCAL_DATE = "LocalDate";
+    private static final String LOCAL_DATE_TIME = "LocalDateTime";
 
     public Specification<T> generateSpecification(FilterReqDto filter) {
         if (nonNull(filter)) {
             return ((root, query, criteriaBuilder) -> {
-               List<Predicate> predicates = new ArrayList<>();
-               if (nonNull(filter.getFilters())) {
-                   filter.getFilters().forEach((attributeName, filterNode) -> {
-                       predicates.add(buildPredicate(root, criteriaBuilder, attributeName, filterNode));
-                   });
-               }
+                List<Predicate> predicates = new ArrayList<>();
+                if (nonNull(filter.getFilters())) {
+                    filter.getFilters().forEach((attributeName, filterNode) ->
+                            predicates.add(buildPredicate(root, criteriaBuilder, attributeName, filterNode)));
+                }
                 return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
             });
         }
@@ -41,23 +43,21 @@ public class FilterSpecificationGenerator<T> {
             case OR -> buildOrPredicate(root, criteriaBuilder, attributeName, filterNode);
             case AND -> buildAndPredicate(root, criteriaBuilder, attributeName, filterNode);
             case LEAF -> buildLeafPredicate(root, criteriaBuilder, attributeName, filterNode);
-            case NOT ->  criteriaBuilder.not(buildPredicate(root, criteriaBuilder, attributeName, filterNode));
+            case NOT -> criteriaBuilder.not(buildPredicate(root, criteriaBuilder, attributeName, filterNode));
         };
     }
 
     private Predicate buildAndPredicate(Root<T> root, CriteriaBuilder criteriaBuilder, String attributeName, FilterNodeDto filterNode) {
         List<Predicate> predicates = new ArrayList<>();
-        filterNode.getSubFilterNodes().forEach(subFilterNode -> {
-            predicates.add(buildPredicate(root, criteriaBuilder, attributeName, subFilterNode));
-        });
+        filterNode.getSubFilterNodes().forEach(subFilterNode ->
+                predicates.add(buildPredicate(root, criteriaBuilder, attributeName, subFilterNode)));
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
     }
 
     private Predicate buildOrPredicate(Root<T> root, CriteriaBuilder criteriaBuilder, String attributeName, FilterNodeDto filterNode) {
         List<Predicate> orPredicates = new ArrayList<>();
-        filterNode.getSubFilterNodes().forEach(subFilterNode -> {
-            orPredicates.add(buildPredicate(root, criteriaBuilder, attributeName, subFilterNode));
-        });
+        filterNode.getSubFilterNodes().forEach(subFilterNode ->
+                orPredicates.add(buildPredicate(root, criteriaBuilder, attributeName, subFilterNode)));
         return criteriaBuilder.or(orPredicates.toArray(new Predicate[0]));
     }
 
@@ -83,11 +83,12 @@ public class FilterSpecificationGenerator<T> {
     private Predicate addLessEqualPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, List<Object> values) {
         var javaType = path.getJavaType();
         return switch (javaType.getSimpleName()) {
-            case "Integer" -> criteriaBuilder.lessThanOrEqualTo(path.as(Integer.class), (Integer) values.getFirst());
-            case "Long" -> criteriaBuilder.lessThanOrEqualTo(path.as(Long.class), (Long) values.getFirst());
-            case "Double" -> criteriaBuilder.lessThanOrEqualTo(path.as(Double.class), (Double) values.getFirst());
-            case "LocalDate" -> criteriaBuilder.lessThanOrEqualTo(path.as(LocalDate.class), (LocalDate) values.getFirst());
-            case "LocalDateTime" ->
+            case INTEGER -> criteriaBuilder.lessThanOrEqualTo(path.as(Integer.class), (Integer) values.getFirst());
+            case LONG -> criteriaBuilder.lessThanOrEqualTo(path.as(Long.class), (Long) values.getFirst());
+            case DOUBLE -> criteriaBuilder.lessThanOrEqualTo(path.as(Double.class), (Double) values.getFirst());
+            case LOCAL_DATE ->
+                    criteriaBuilder.lessThanOrEqualTo(path.as(LocalDate.class), (LocalDate) values.getFirst());
+            case LOCAL_DATE_TIME ->
                     criteriaBuilder.lessThanOrEqualTo(path.as(LocalDateTime.class), (LocalDateTime) values.getFirst());
             default -> criteriaBuilder.lessThanOrEqualTo(path.as(String.class), values.getFirst().toString());
         };
@@ -96,11 +97,11 @@ public class FilterSpecificationGenerator<T> {
     private Predicate addLessPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, List<Object> values) {
         var javaType = path.getJavaType();
         return switch (javaType.getSimpleName()) {
-            case "Integer" -> criteriaBuilder.lessThan(path.as(Integer.class), (Integer) values.getFirst());
-            case "Long" -> criteriaBuilder.lessThan(path.as(Long.class), (Long) values.getFirst());
-            case "Double" -> criteriaBuilder.lessThan(path.as(Double.class), (Double) values.getFirst());
-            case "LocalDate" -> criteriaBuilder.lessThan(path.as(LocalDate.class), (LocalDate) values.getFirst());
-            case "LocalDateTime" ->
+            case INTEGER -> criteriaBuilder.lessThan(path.as(Integer.class), (Integer) values.getFirst());
+            case LONG -> criteriaBuilder.lessThan(path.as(Long.class), (Long) values.getFirst());
+            case DOUBLE -> criteriaBuilder.lessThan(path.as(Double.class), (Double) values.getFirst());
+            case LOCAL_DATE -> criteriaBuilder.lessThan(path.as(LocalDate.class), (LocalDate) values.getFirst());
+            case LOCAL_DATE_TIME ->
                     criteriaBuilder.lessThan(path.as(LocalDateTime.class), (LocalDateTime) values.getFirst());
             default -> criteriaBuilder.lessThan(path.as(String.class), values.getFirst().toString());
         };
@@ -109,11 +110,12 @@ public class FilterSpecificationGenerator<T> {
     private Predicate addGreaterEqualPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, List<Object> values) {
         Class<?> javaType = path.getJavaType();
         return switch (javaType.getSimpleName()) {
-            case "Integer" -> criteriaBuilder.greaterThanOrEqualTo(path.as(Integer.class), (Integer) values.getFirst());
-            case "Long" -> criteriaBuilder.greaterThanOrEqualTo(path.as(Long.class), (Long) values.getFirst());
-            case "Double" -> criteriaBuilder.greaterThanOrEqualTo(path.as(Double.class), (Double) values.getFirst());
-            case "LocalDate" -> criteriaBuilder.greaterThanOrEqualTo(path.as(LocalDate.class), (LocalDate) values.getFirst());
-            case "LocalDateTime" ->
+            case INTEGER -> criteriaBuilder.greaterThanOrEqualTo(path.as(Integer.class), (Integer) values.getFirst());
+            case LONG -> criteriaBuilder.greaterThanOrEqualTo(path.as(Long.class), (Long) values.getFirst());
+            case DOUBLE -> criteriaBuilder.greaterThanOrEqualTo(path.as(Double.class), (Double) values.getFirst());
+            case LOCAL_DATE ->
+                    criteriaBuilder.greaterThanOrEqualTo(path.as(LocalDate.class), (LocalDate) values.getFirst());
+            case LOCAL_DATE_TIME ->
                     criteriaBuilder.greaterThanOrEqualTo(path.as(LocalDateTime.class), (LocalDateTime) values.getFirst());
             default -> criteriaBuilder.greaterThanOrEqualTo(path.as(String.class), values.getFirst().toString());
         };
@@ -122,11 +124,11 @@ public class FilterSpecificationGenerator<T> {
     private Predicate addGreaterPredicate(CriteriaBuilder criteriaBuilder, Path<?> path, List<Object> values) {
         Class<?> javaType = path.getJavaType();
         return switch (javaType.getSimpleName()) {
-            case "Integer" -> criteriaBuilder.greaterThan(path.as(Integer.class), (Integer) values.getFirst());
-            case "Long" -> criteriaBuilder.greaterThan(path.as(Long.class), (Long) values.getFirst());
-            case "Double" -> criteriaBuilder.greaterThan(path.as(Double.class), (Double) values.getFirst());
-            case "LocalDate" -> criteriaBuilder.greaterThan(path.as(LocalDate.class), (LocalDate) values.getFirst());
-            case "LocalDateTime" ->
+            case INTEGER -> criteriaBuilder.greaterThan(path.as(Integer.class), (Integer) values.getFirst());
+            case LONG -> criteriaBuilder.greaterThan(path.as(Long.class), (Long) values.getFirst());
+            case DOUBLE -> criteriaBuilder.greaterThan(path.as(Double.class), (Double) values.getFirst());
+            case LOCAL_DATE -> criteriaBuilder.greaterThan(path.as(LocalDate.class), (LocalDate) values.getFirst());
+            case LOCAL_DATE_TIME ->
                     criteriaBuilder.greaterThan(path.as(LocalDateTime.class), (LocalDateTime) values.getFirst());
             default -> criteriaBuilder.greaterThan(path.as(String.class), values.getFirst().toString());
         };

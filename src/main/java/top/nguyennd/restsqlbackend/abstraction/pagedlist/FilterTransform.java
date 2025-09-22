@@ -84,7 +84,7 @@ public class FilterTransform {
             checkCondition(AbstractEntity.class.isAssignableFrom(fieldTypes.get(fieldPath[0])),
                     "Referenced field %s is not an entity".formatted(fieldPath[0]));
             existingFieldType = checkFieldInEntityExists(getFieldTypes(fieldTypes.get(fieldPath[0])),
-                    fieldPath[0]);
+                    fieldPath[1]);
         }
         return existingFieldType;
     }
