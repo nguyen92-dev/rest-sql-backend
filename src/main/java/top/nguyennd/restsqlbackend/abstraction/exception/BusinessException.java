@@ -1,17 +1,29 @@
 package top.nguyennd.restsqlbackend.abstraction.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import top.nguyennd.restsqlbackend.abstraction.common.ErrorStatus;
 
 @Builder
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class BusinessException extends RuntimeException {
 
-    ErrorStatus errorStatus;
+    final ErrorStatus errorStatus;
 
+    BusinessException(ErrorStatus errorStatus, String message) {
+        super(message);
+        this.errorStatus = errorStatus;
+    }
+
+    public static BusinessException badRequest(String message) {
+        return new BusinessException(ErrorStatus.BAD_REQUEST, message);
+    }
+
+    public static BusinessException notFound(String message) {
+        return new BusinessException(ErrorStatus.NOT_FOUND, message);
+    }
+
+    public static BusinessException conflict(String message) {
+        return new BusinessException(ErrorStatus.CONFLICT, message);
+    }
 }
