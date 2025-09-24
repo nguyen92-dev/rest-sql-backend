@@ -1,10 +1,8 @@
 package top.nguyennd.restsqlbackend.abstraction.exception;
 
-import lombok.Builder;
 import lombok.Getter;
 import top.nguyennd.restsqlbackend.abstraction.common.ErrorStatus;
 
-@Builder
 @Getter
 public class BusinessException extends RuntimeException {
 
