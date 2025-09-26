@@ -8,7 +8,7 @@ public class BusinessException extends RuntimeException {
 
     final ErrorStatus errorStatus;
 
-    BusinessException(ErrorStatus errorStatus, String message) {
+    public BusinessException(ErrorStatus errorStatus, String message) {
         super(message);
         this.errorStatus = errorStatus;
     }

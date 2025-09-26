@@ -16,7 +16,6 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 
 @AllArgsConstructor
-@NoArgsConstructor
 public class FilterSpecificationGenerator<T> {
     private static final String INTEGER = "Integer";
     private static final String LONG = "Long";
