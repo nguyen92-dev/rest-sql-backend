@@ -24,4 +24,12 @@ public class BusinessException extends RuntimeException {
     public static BusinessException conflict(String message) {
         return new BusinessException(ErrorStatus.CONFLICT, message);
     }
+
+    public static BusinessException forbidden(String message) {
+        return  new BusinessException(ErrorStatus.FORBIDDEN, message);
+    }
+
+    public static BusinessException internalServerError(String message) {
+        return  new BusinessException(ErrorStatus.INTERNAL_SERVER_ERROR, message);
+    }
 }

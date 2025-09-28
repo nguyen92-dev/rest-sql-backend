@@ -5,7 +5,6 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ public class FilterSpecificationGenerator<T> {
     private static final String LOCAL_DATE = "LocalDate";
     private static final String LOCAL_DATE_TIME = "LocalDateTime";
 
-    public Specification<T> generateSpecification(FilterReqDto filter) {
+    public Specification<T> generateSpecification(FilterReqDto filter, boolean isAnd) {
         if (nonNull(filter)) {
             return ((root, query, criteriaBuilder) -> {
                 List<Predicate> predicates = new ArrayList<>();
@@ -31,7 +30,10 @@ public class FilterSpecificationGenerator<T> {
                     filter.getFilters().forEach((attributeName, filterNode) ->
                             predicates.add(buildPredicate(root, criteriaBuilder, attributeName, filterNode)));
                 }
-                return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+                if (isAnd) {
+                    return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+                }
+                return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
             });
         }
         return null;

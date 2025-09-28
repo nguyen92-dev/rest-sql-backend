@@ -14,7 +14,7 @@ public interface IPagedListService<T extends AbstractEntity, V extends AbstractD
     default Page<V> getPagedList(FilterReqDto filter, Pageable pageable) {
         var entityRepository = getRepository();
         var fieldMap = getFieldTypes(getEntityClass());
-        Specification<T> specification = new FilterSpecificationGenerator<T>().generateSpecification(transformToAllowedFilter(filter, fieldMap));
+        Specification<T> specification = new FilterSpecificationGenerator<T>().generateSpecification(transformToAllowedFilter(filter, fieldMap), true);
         return entityRepository.findAll(specification, pageable).map(getMapper());
     }
 
